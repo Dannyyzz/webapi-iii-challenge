@@ -6,7 +6,7 @@ router.post("/", (req, res) => {});
 
 router.post("/:id/posts", (req, res) => {});
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
     try {
         const users = await User.get();
     
@@ -21,7 +21,10 @@ router.get("/", (req, res) => {
       }
 });
 
-router.get("/:id", (req, res) => {});
+router.get("/:id", validateUserId, (req, res) => {
+    console.log("api?");
+    res.send("YES!");
+});
 
 router.get("/:id/posts", (req, res) => {});
 
@@ -36,7 +39,17 @@ async function validateUserId(req, res, next) {
 
     try {
         const user = User.getById(id);
-      } catch (error) {}
+
+        if (!user) {
+            res.status(400).json({ message: "invalid user id" });
+            return;
+          } else {
+            req.user = user;
+            next();
+          }
+      } catch (error) {
+        res.status(500).json({ errorMessage: "Internal Server Error" });
+      }
 }
 
 function validateUser(req, res, next) {}
