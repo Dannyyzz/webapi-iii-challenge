@@ -15,7 +15,21 @@ router.post("/", validateUser, (req, res) => {
       }
 });
 
-router.post("/:id/posts", (req, res) => {});
+router.post("/:id/posts", [validateUserId, validatePost], (req, res) => {
+    const { user } = req;
+
+    try {
+     const post = await Post.insert({ text: req.body.text, user_id: user.id });
+ 
+      res.status(201).json({
+       post
+     });
+   } catch (error) {
+     res.status(500).json({
+       errorMessage: "Internal server error"
+     });
+   }
+});
 
 router.get("/", (_req, res) => {
     try {
@@ -80,7 +94,7 @@ async function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-    console.log(req.body);
+
     if (req.body === undefined || Object.keys(req.body).length === 0) {
       res.status(400).json({
         message: "missing user data"
@@ -98,6 +112,22 @@ function validateUser(req, res, next) {
      next();
 }
 
-function validatePost(req, res, next) {}
+function validatePost(req, res, next) {
+    if (req.body === undefined || Object.keys(req.body).length === 0) {
+        res.status(400).json({
+          message: "missing post data"
+        });
+        return;
+      }
+    
+       if (req.body.text === undefined) {
+        res.status(400).json({
+          message: "missing required text field"
+        });
+        return;
+      }
+    
+       next();
+}
 
 module.exports = router;
