@@ -2,7 +2,18 @@ const express = "express";
 
 const router = express.Router();
 
-router.post("/", (req, res) => {});
+router.post("/", validateUser, (req, res) => {
+    try {
+        const user = await User.insert(req.body);
+        res.status(201).json({
+          user
+        });
+      } catch (error) {
+        res.status(500).json({
+          errorMessage: "Internal server error"
+        });
+      }
+});
 
 router.post("/:id/posts", (req, res) => {});
 
@@ -68,7 +79,24 @@ async function validateUserId(req, res, next) {
       }
 }
 
-function validateUser(req, res, next) {}
+function validateUser(req, res, next) {
+    console.log(req.body);
+    if (req.body === undefined || Object.keys(req.body).length === 0) {
+      res.status(400).json({
+        message: "missing user data"
+      });
+      return;
+    }
+  
+     if (req.body.name === undefined) {
+      res.status(400).json({
+        message: "missing required name field"
+      });
+      return;
+    }
+  
+     next();
+}
 
 function validatePost(req, res, next) {}
 
