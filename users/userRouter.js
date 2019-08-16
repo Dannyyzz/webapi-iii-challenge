@@ -22,8 +22,11 @@ router.get("/", (_req, res) => {
 });
 
 router.get("/:id", validateUserId, (req, res) => {
-    console.log("api?");
-    res.send("YES!");
+    const { user } = req;	
+
+    res.status(200).json({
+      user
+    });
 });
 
 router.get("/:id/posts", (req, res) => {});
